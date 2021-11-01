@@ -1,8 +1,11 @@
 # common imports
 import statsmodels.api as sm
+
 from keras import backend as K
 import keras
+
 from lightgbm import LGBMRegressor
+
 from sklearn.metrics import mean_squared_error
 from sklearn.svm import SVR
 from sklearn.pipeline import make_pipeline
@@ -10,6 +13,20 @@ from sklearn.preprocessing import StandardScaler
 
 def root_mean_squared_error(y_true, y_pred):
     return K.sqrt(K.mean(K.square(y_pred - y_true)))
+
+def polynomial_regression(train, valid, features, target='target'):
+    from sklearn.linear_model import LinearRegression
+    from sklearn.preprocessing import PolynomialFeatures
+    model = LinearRegression()
+    poly = PolynomialFeatures(degree=3)
+    train_x = poly.fit_transform(X=train[features])
+    model.fit(train_x, train[target])
+
+    valid_pred = model.predict(poly.transform(valid[features]))
+    rmse = root_mean_squared_error(valid[target], valid_pred)
+    print(rmse)
+    return model
+
 
 def ols_stats_model(train, valid, features, target='target'):
     mod = sm.OLS(train[target], train[features])
